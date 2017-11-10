@@ -20,6 +20,11 @@ stdenv.mkDerivation rec {
     patchShebangs ./autogen.sh
     ./autogen.sh
   '';
+  
+  postInstall = ''
+    mkdir -p $out/sbin
+    ln -sf $out/bin/s3backer $out/sbin/mount.s3backer
+  '';
 
   meta = with stdenv.lib; {
     homepage = https://github.com/archiecobbs/s3backer;
