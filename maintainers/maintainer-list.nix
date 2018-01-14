@@ -2256,6 +2256,11 @@
     github = "lukego";
     name = "Luke Gorrie";
   };
+  lukeadams = {
+    email = "luke.adams@belljar.io";
+    github = "lukeadams";
+    name = "Luke Adams";
+  };
   luz = {
     email = "luz666@daum.net";
     github = "Luz";
