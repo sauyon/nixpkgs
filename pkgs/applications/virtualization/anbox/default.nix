@@ -90,7 +90,7 @@ let
     description = "Container based approach to boot a full Android system";
     license = licenses.gpl3;
     platforms = platforms.linux;
-    maintainers = [ maintainers.volth ];
+    maintainers = [ maintainers.sauyon ];
   };
 in {
   ashmem = stdenv.mkDerivation {
