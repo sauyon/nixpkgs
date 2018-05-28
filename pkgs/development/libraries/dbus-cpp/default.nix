@@ -33,10 +33,10 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with stdenv.lib; {
-    homepage = http://dbus-cplusplus.sourceforge.net;
+    homepage = https://launchpad.net/dbus-cpp;
     description = "C++ API for D-BUS";
-    license = licenses.gpl2Plus;
+    license = licenses.lgpl3;
     platforms = platforms.linux;
-    maintainers = [ maintainers.goibhniu ];
+    maintainers = [ maintainers.sauyon ];
   };
 }
