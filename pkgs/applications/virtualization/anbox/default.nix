@@ -1,82 +1,12 @@
 { stdenv, fetchurl, fetchFromGitHub, fetchbzr, cmake, pkgconfig, boost, libxml2, dbus, gtest, gmock
 , lcov, SDL2, mesa_noglu, protobuf, lxc, glm, xorg, linuxPackages, pythonPackages, bash, coreutils
+, libproperties-cpp, libprocess-cpp, dbus-cpp,
 , kernel ? null, systemd }:
 
-assert kernel != null -> (stdenv.lib.versionAtLeast kernel.version "4.4") && !(kernel.features.grsecurity or false);
+assert kernel != null -> (stdenv.lib.versionAtLeast kernel.version "4.4") &&
+  !(kernel.features.grsecurity or false);
 
 let
-  properties-cpp = stdenv.mkDerivation rec {
-    name = "properties-cpp-${rev}";
-    rev = "0.0.1+14.10.20140730-0ubuntu1";
-    src = fetchbzr {
-      url = "http://bazaar.launchpad.net/~phablet-team/properties-cpp/trunk";
-      inherit rev;
-      sha256 = "03lf092r71pnvqypv5rg27qczvfbbblrrc3nz6m9mp7j4yfp012w";
-    };
-    nativeBuildInputs = [ cmake pkgconfig pythonPackages.gcovr lcov ];
-    buildInputs = [ gtest ];
-    preConfigure = ''
-      substituteInPlace CMakeLists.txt --replace 'include(cmake/PrePush.cmake)' "" # skip making .deb
-      # it wants writable dir with gmock sources
-      cp -dr --preserve=mode ${gmock.src} ./gmocksrc
-      chmod u+w -R ./gmocksrc
-      ln -s googlemock ./gmocksrc/gmock
-    '';
-    cmakeFlags = "-DGMOCK_INSTALL_DIR=../gmocksrc";
-    android_image = {
-      "armv7l-linux" = {
-        url = "${imgroot}/2017/06/12/android_1_armhf.img";
-        sha256 = "1za4q6vnj8wgphcqpvyq1r8jg6khz7v6b7h6ws1qkd5ljangf1w5";
-      };
-      "aarch64-linux" = {
-        url = "${imgroot}/2017/08/04/android_1_arm64.img";
-        sha256 = "02yvgpx7n0w0ya64y5c7bdxilaiqj9z3s682l5s54vzfnm5a2bg5";
-      };
-      "x86_64-linux" = {
-        url = "${imgroot}/2017/07/13/android_3_amd64.img";
-        sha256 = "1l22pisan3kfq4hwpizxc24f8lr3m5hd6k69nax10rki9ljypji0";
-      };
-    }.${stdenv.system};
-  };
-
-  process-cpp = stdenv.mkDerivation rec {
-    name = "process-cpp-${rev}";
-    rev = "2.0.0+14.10.20140718-0ubuntu1";
-    src = fetchbzr {
-      url = "http://bazaar.launchpad.net/~phablet-team/process-cpp/trunk";
-      inherit rev;
-      sha256 = "10529r9nhry80w4m2424il561xbirz7b5fx0s0sw02qcjp362afp";
-    };
-    nativeBuildInputs = [ cmake pkgconfig ];
-    propagatedBuildInputs = [ boost properties-cpp ];
-    buildInputs = [ gtest ];
-    cmakeFlags = "-DGMOCK_SOURCE_DIR=${gmock.src}";
-    postInstall = ''
-      rm -rf $out/include/{gmock,gtest} $out/lib/lib{gmock,gtest}{,_main}.a
-    '';
-  };
-
-  dbus-cpp = stdenv.mkDerivation rec {
-    name = "dbus-cpp-${rev}";
-    rev = "5.0.0+16.10.20160809-0ubuntu1";
-    src = fetchbzr {
-      url = "http://bazaar.launchpad.net/~phablet-team/dbus-cpp/trunk";
-      inherit rev;
-      sha256 = "0mrqh6ynj41fscrhzgagd8m9s45flvrqdacbhk8bi1337vy68m9w";
-    };
-    nativeBuildInputs = [ cmake pkgconfig ];
-    propagatedBuildInputs = [ process-cpp libxml2 dbus ];
-    buildInputs = [ gtest ];
-    preConfigure = ''
-      substituteInPlace CMakeLists.txt --replace 'include(cmake/PrePush.cmake)' "" # skip making .deb
-    '';
-    cmakeFlags = "-DDBUS_CPP_VERSION_MAJOR=5 -DDBUS_CPP_VERSION_MINOR=0 -DDBUS_CPP_VERSION_PATCH=0 -DGMOCK_SOURCE_DIR=${gmock.src}";
-    NIX_CFLAGS_COMPILE = "-Wno-error";
-    postInstall = ''
-      rm -rf $out/include/{gmock,gtest} $out/lib/lib{gmock,gtest}{,_main}.a $out/libexec
-    '';
-  };
-
   rev = "76be0e2";
   version = "0.1.0-${rev}";
   src = fetchFromGitHub {
