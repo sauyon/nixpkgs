@@ -30,6 +30,6 @@ stdenv.mkDerivation rec {
     description = "C++ API for D-BUS";
     license = licenses.gpl2Plus;
     platforms = platforms.linux;
-    maintainers = [ maintainers.goibhniu ];
+    maintainers = [ maintainers.sauyon ];
   };
 }
